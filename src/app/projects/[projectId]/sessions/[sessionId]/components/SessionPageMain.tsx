@@ -211,6 +211,27 @@ const SessionPageMainContent: FC<
     },
   });
 
+  const hasScrolledToBottomOnLoad = useRef(false);
+
+  // Scroll to bottom on initial load
+  useEffect(() => {
+    if (!isExistingSession || conversations.length === 0) return;
+    if (hasScrolledToBottomOnLoad.current) return;
+    hasScrolledToBottomOnLoad.current = true;
+    const scrollContainer = scrollContainerRef.current;
+    if (scrollContainer) {
+      requestAnimationFrame(() => {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      });
+    }
+  }, [isExistingSession, conversations.length]);
+
+  // Reset when switching sessions
+  useEffect(() => {
+    hasScrolledToBottomOnLoad.current = false;
+  }, []);
+
+  // Auto-scroll during running session
   useEffect(() => {
     if (!isExistingSession) return;
     if (

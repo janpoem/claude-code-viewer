@@ -126,7 +126,7 @@ export const MarkdownContent: FC<MarkdownContentProps> = ({
             if (isInline) {
               return (
                 <code
-                  className="bg-muted/70 px-2 py-1 rounded-md text-sm font-mono text-foreground border break-all"
+                  className="bg-muted/70 px-1 py-0.5 rounded-md text-sm font-mono text-foreground border break-all"
                   {...props}
                 >
                   {children}
@@ -145,7 +145,7 @@ export const MarkdownContent: FC<MarkdownContentProps> = ({
                   style={syntaxTheme}
                   language={match[1]}
                   PreTag="div"
-                  className="!mt-0 !rounded-t-none !rounded-b-lg !border-t-0 !border !border-border"
+                  className="!mt-0 !rounded-t-none !rounded-b-lg !border-t-0 !border !border-border syntax-highlighter"
                   customStyle={{
                     margin: 0,
                     borderTopLeftRadius: 0,

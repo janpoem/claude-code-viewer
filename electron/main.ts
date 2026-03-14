@@ -16,8 +16,42 @@ function getFullPath(): string {
   // biome-ignore lint/style/noProcessEnv: need to read and fix PATH for packaged app
   const currentPath = process.env.PATH ?? "";
 
+  const sep = process.platform === "win32" ? ";" : ":";
+
   if (process.platform === "win32") {
-    return currentPath;
+    // Windows: read full user PATH from registry, since GUI apps may have stale PATH
+    try {
+      const regOutput = execSync('reg query "HKCU\\Environment" /v Path', {
+        encoding: "utf-8",
+        timeout: 5000,
+      });
+      const match = regOutput.match(/Path\s+REG_(?:EXPAND_)?SZ\s+(.+)/i);
+      if (match) {
+        const registryPath = match[1].trim();
+        const merged = new Set(currentPath.split(sep));
+        for (const p of registryPath.split(sep)) {
+          if (p) merged.add(p);
+        }
+        return [...merged].join(sep);
+      }
+    } catch {
+      // fallback
+    }
+
+    // Append common Windows paths for npm/node tools
+    const home = app.getPath("home");
+    const appData =
+      // biome-ignore lint/style/noProcessEnv: need APPDATA for npm global path
+      process.env.APPDATA ?? path.join(home, "AppData", "Roaming");
+    const extraPaths = [
+      path.join(appData, "npm"),
+      path.join(home, ".local", "bin"),
+    ];
+    const pathSet = new Set(currentPath.split(sep));
+    for (const p of extraPaths) {
+      pathSet.add(p);
+    }
+    return [...pathSet].join(sep);
   }
 
   // macOS/Linux: get PATH from user's login shell
@@ -39,17 +73,14 @@ function getFullPath(): string {
     "/opt/homebrew/sbin",
     "/usr/local/bin",
     path.join(app.getPath("home"), ".local", "bin"),
-    path.join(app.getPath("home"), ".nvm", "versions", "node"),
   ];
 
-  const pathSet = new Set(currentPath.split(":"));
+  const pathSet = new Set(currentPath.split(sep));
   for (const p of extraPaths) {
-    if (!pathSet.has(p)) {
-      pathSet.add(p);
-    }
+    pathSet.add(p);
   }
 
-  return [...pathSet].join(":");
+  return [...pathSet].join(sep);
 }
 
 let mainWindow: BrowserWindow | null = null;

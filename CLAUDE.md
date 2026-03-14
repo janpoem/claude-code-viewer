@@ -50,6 +50,27 @@ Claude Code Viewer reads Claude Code session logs directly from JSONL files (`~/
 - Data: Direct JSONL reads with strict Zod validation
 - Real-time: Server-Sent Events (SSE) for live updates
 
+## Git Branching Rules
+
+**All changes MUST go through feature branches and pull requests.**
+
+- **NEVER** commit directly to `main`
+- Create a feature branch before starting any work: `git checkout -b <type>/<description>`
+- Branch naming: `feat/`, `fix/`, `chore/`, `refactor/` prefixes matching commit type
+- Push the branch and create a PR to merge into `main`
+- Delete the feature branch after the PR is merged
+
+**Workflow**:
+```bash
+git checkout main && git pull
+git checkout -b feat/my-feature
+# ... make changes, commit ...
+git push -u origin feat/my-feature
+gh pr create --title "feat: my feature" --body "..."
+# After PR is merged:
+git checkout main && git pull
+```
+
 ## Development Workflow
 
 ### Quality Checks

@@ -54,13 +54,20 @@ jobs:
         run: pnpm build:electron
         shell: bash
 
-      - name: Package Electron App
+      - name: Package Electron App (signed)
+        if: matrix.platform == 'mac' && secrets.CSC_LINK != ''
         run: npx electron-builder --publish never
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.CSC_LINK != '' }}
+
+      - name: Package Electron App (unsigned)
+        if: matrix.platform != 'mac' || secrets.CSC_LINK == ''
+        run: npx electron-builder --publish never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
 
       - name: Upload artifacts (macOS)
         if: matrix.platform == 'mac'

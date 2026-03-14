@@ -29,6 +29,10 @@ jobs:
             platform: win
 
     steps:
+      - name: Enable long paths (Windows)
+        if: matrix.platform == 'win'
+        run: git config --system core.longpaths true
+
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
@@ -48,6 +52,7 @@ jobs:
 
       - name: Build Electron
         run: pnpm build:electron
+        shell: bash
 
       - name: Package Electron App
         run: npx electron-builder --publish never
@@ -55,6 +60,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.CSC_LINK != '' }}
 
       - name: Upload artifacts (macOS)
         if: matrix.platform == 'mac'

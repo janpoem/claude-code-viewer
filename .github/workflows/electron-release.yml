@@ -1,0 +1,113 @@
+name: Electron Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'electron/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            platform: mac
+          - os: windows-latest
+            platform: win
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
+        with:
+          node-version-file: '.node-version'
+
+      - name: Setup pnpm
+        run: npm install -g pnpm
+
+      - name: Install Dependencies
+        run: pnpm i --frozen-lockfile
+
+      - name: Build Frontend
+        run: pnpm build:frontend
+
+      - name: Build Electron
+        run: pnpm build:electron
+
+      - name: Package Electron App
+        run: npx electron-builder --publish never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+
+      - name: Upload artifacts (macOS)
+        if: matrix.platform == 'mac'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: electron-mac
+          path: |
+            release/*.dmg
+            release/*.zip
+          if-no-files-found: error
+
+      - name: Upload artifacts (Windows)
+        if: matrix.platform == 'win'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: electron-win
+          path: |
+            release/*.exe
+          if-no-files-found: error
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Get version from package.json
+        id: version
+        run: echo "version=$(node -p 'require(\"./package.json\").version')" >> "$GITHUB_OUTPUT"
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          path: artifacts
+
+      - name: List artifacts
+        run: find artifacts -type f | head -20
+
+      - name: Create or Update Release
+        uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2.2.1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Claude Code Viewer v${{ steps.version.outputs.version }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            artifacts/electron-mac/*
+            artifacts/electron-win/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

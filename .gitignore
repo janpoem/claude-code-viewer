@@ -59,3 +59,7 @@ specs
 
 # e2e check
 temp-pack
+
+# electron
+/electron-dist
+/release

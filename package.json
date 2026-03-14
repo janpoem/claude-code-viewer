@@ -9,11 +9,12 @@
     "url": "https://github.com/d-kimuson/claude-code-viewer.git"
   },
   "homepage": "https://github.com/d-kimuson/claude-code-viewer",
+  "main": "electron-dist/main.cjs",
   "files": [
     "dist"
   ],
   "engines": {
-    "node": ">=20.19.0"
+    "node": ">=22.12.0"
   },
   "bin": {
     "claude-code-viewer": "./dist/main.js"
@@ -40,6 +41,11 @@
     "e2e:capture-snapshots": "./scripts/e2e/capture_snapshots.sh",
     "lingui:extract": "lingui extract --clean && node ./scripts/lingui-sort.js",
     "lingui:compile": "lingui compile --typescript",
+    "build:electron-server": "esbuild src/server/main.ts --format=esm --bundle --sourcemap --platform=node --external:@replit/ruspty --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\" --outfile=electron-dist/server.mjs && cp -r dist/static electron-dist/static",
+    "build:electron": "pnpm build:electron-server && esbuild electron/main.ts --format=cjs --bundle --platform=node --external:electron --external:electron-updater --outfile=electron-dist/main.cjs && esbuild electron/preload.ts --format=cjs --bundle --platform=node --external:electron --outfile=electron-dist/preload.cjs",
+    "electron:dev": "pnpm build:frontend && pnpm build:electron && electron electron-dist/main.cjs",
+    "electron:pack": "pnpm build:frontend && pnpm build:electron && electron-builder --dir",
+    "electron:dist": "pnpm build:frontend && pnpm build:electron && electron-builder",
     "prepack": "pnpm build",
     "prepare": "lefthook install"
   },
@@ -83,6 +89,7 @@
     "commander": "14.0.3",
     "date-fns": "4.1.0",
     "effect": "3.19.17",
+    "electron-updater": "^6.8.3",
     "es-toolkit": "1.44.0",
     "hono": "4.11.9",
     "jotai": "2.17.1",
@@ -123,6 +130,8 @@
     "@typescript/native-preview": "7.0.0-dev.20260215.1",
     "@vitejs/plugin-react-swc": "4.2.3",
     "dotenv": "17.3.1",
+    "electron": "^41.0.2",
+    "electron-builder": "^26.8.1",
     "esbuild": "0.27.3",
     "jsdom": "^28.1.0",
     "lefthook": "2.1.1",
@@ -136,6 +145,61 @@
     "typescript": "5.9.3",
     "vite": "7.3.1",
     "vitest": "4.0.18"
+  },
+  "build": {
+    "appId": "com.kimuson.claude-code-viewer",
+    "productName": "Claude Code Viewer",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "electron-dist/**/*",
+      "package.json",
+      "!node_modules",
+      "node_modules/@replit/ruspty/**/*",
+      "node_modules/electron-updater/**/*",
+      "node_modules/builder-util-runtime/**/*",
+      "node_modules/lazy-val/**/*"
+    ],
+    "asarUnpack": [
+      "node_modules/@replit/ruspty/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "icon": "icon/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "hardenedRuntime": true,
+      "entitlements": "electron/entitlements.mac.plist",
+      "entitlementsInherit": "electron/entitlements.mac.plist"
+    },
+    "win": {
+      "icon": "icon/icon.ico",
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "d-kimuson",
+      "repo": "claude-code-viewer"
+    }
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild",
+      "lefthook",
+      "@swc/core",
+      "@parcel/watcher",
+      "msgpackr-extract"
+    ]
   },
   "packageManager": "pnpm@10.28.1+sha512.7d7dbbca9e99447b7c3bf7a73286afaaf6be99251eb9498baefa7d406892f67b879adb3a1d7e687fc4ccc1a388c7175fbaae567a26ab44d1067b54fcb0d6a316"
 }

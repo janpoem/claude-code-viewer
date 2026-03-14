@@ -166,6 +166,7 @@
     ],
     "mac": {
       "category": "public.app-category.developer-tools",
+      "icon": "icon/icon.icns",
       "target": [
         "dmg",
         "zip"
@@ -175,6 +176,7 @@
       "entitlementsInherit": "electron/entitlements.mac.plist"
     },
     "win": {
+      "icon": "icon/icon.ico",
       "target": [
         "nsis"
       ]

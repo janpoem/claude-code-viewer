@@ -1,0 +1,55 @@
+<svg width="512" xmlns="http://www.w3.org/2000/svg" height="512" viewBox="100 100 512 512" fill="none" version="1.1">
+  <defs>
+    <clipPath id="icon-clip">
+      <rect rx="96" ry="96" x="100" y="100" width="512" height="512"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#icon-clip)">
+    <!-- Background -->
+    <rect rx="96" ry="96" x="100" y="100" width="512" height="512" style="fill:#0d0d1a"/>
+    <!-- BG Glow -->
+    <ellipse cx="356" cy="356" rx="200" ry="200" style="fill:#1a1a3a;fill-opacity:0.6"/>
+    <!-- Agent connection lines (to center) -->
+    <rect rx="1" ry="1" x="266" y="275" width="180" height="2" transform="matrix(0,1,-1,0,632,-80)" style="fill:#d4845a;fill-opacity:0.25"/>
+    <rect rx="1" ry="1" x="344.21" y="410" width="183.58" height="2" transform="matrix(-0.8716,-0.4903,0.4903,-0.8716,614.51,982.97)" style="fill:#d4845a;fill-opacity:0.25"/>
+    <rect rx="1" ry="1" x="169.43" y="400" width="193.13" height="2" transform="matrix(0.932,-0.3624,0.3624,0.932,-127.25,123.68)" style="fill:#d4845a;fill-opacity:0.25"/>
+    <rect rx="1" ry="1" x="337.99" y="310" width="186.01" height="2" transform="matrix(-0.8064,0.5914,-0.5914,-0.8064,962.47,306.91)" style="fill:#d4845a;fill-opacity:0.25"/>
+    <rect rx="1" ry="1" x="164" y="300" width="214.01" height="2" transform="matrix(0.7944,0.6075,-0.6075,0.7944,238.57,-102.72)" style="fill:#d4845a;fill-opacity:0.25"/>
+    <!-- Agent inter-links (blue) -->
+    <rect rx="0.75" ry="0.75" x="175.71" y="445.25" width="340.59" height="1.5" transform="matrix(0.9983,0.0587,-0.0587,0.9983,26.79,-19.55)" style="fill:#6cb4ee;fill-opacity:0.2"/>
+    <rect rx="0.75" ry="0.75" x="348.24" y="220.25" width="165.53" height="1.5" transform="matrix(0.9062,0.4229,-0.4229,0.9062,133.89,-161.53)" style="fill:#6cb4ee;fill-opacity:0.2"/>
+    <rect rx="0.75" ry="0.75" x="182.4" y="210.25" width="177.2" height="1.5" transform="matrix(0.9594,-0.2822,0.2822,0.9594,-48.53,85.04)" style="fill:#6cb4ee;fill-opacity:0.2"/>
+    <!-- Terminal Window -->
+    <rect rx="16" ry="16" x="236" y="276" width="240" height="180" style="fill:#161630"/>
+    <rect rx="16" ry="16" x="236" y="276" width="240" height="180" style="fill:none;stroke-width:2.5;stroke:#d4845a;stroke-opacity:0.8"/>
+    <!-- Title dots -->
+    <ellipse cx="261" cy="297" rx="5" ry="5" style="fill:#ff6058"/>
+    <ellipse cx="279" cy="297" rx="5" ry="5" style="fill:#ffbd2e"/>
+    <ellipse cx="297" cy="297" rx="5" ry="5" style="fill:#28ca42"/>
+    <!-- Prompt >_ -->
+    <text x="256" y="360" dominant-baseline="ideographic" style="font-family:'Source Code Pro',monospace;font-weight:700;font-size:36px;fill:#d4845a">&gt;_</text>
+    <!-- Code lines -->
+    <rect rx="4" ry="4" x="256" y="366" width="120" height="8" style="fill:#6cb4ee;fill-opacity:0.7"/>
+    <rect rx="4" ry="4" x="256" y="388" width="80" height="8" style="fill:#d4845a;fill-opacity:0.5"/>
+    <rect rx="4" ry="4" x="256" y="410" width="100" height="8" style="fill:#6cb4ee;fill-opacity:0.4"/>
+    <!-- Agent nodes with glows -->
+    <ellipse cx="186" cy="236" rx="22" ry="22" style="fill:#d4845a;fill-opacity:0.15"/>
+    <ellipse cx="186" cy="236" rx="10" ry="10" style="fill:#d4845a"/>
+    <ellipse cx="506" cy="256" rx="19.8" ry="19.8" style="fill:#e8a87c;fill-opacity:0.15"/>
+    <ellipse cx="506" cy="256" rx="9" ry="9" style="fill:#e8a87c"/>
+    <ellipse cx="176" cy="436" rx="17.6" ry="17.6" style="fill:#e8a87c;fill-opacity:0.15"/>
+    <ellipse cx="176" cy="436" rx="8" ry="8" style="fill:#e8a87c"/>
+    <ellipse cx="516" cy="456" rx="19.8" ry="19.8" style="fill:#d4845a;fill-opacity:0.15"/>
+    <ellipse cx="516" cy="456" rx="9" ry="9" style="fill:#d4845a"/>
+    <ellipse cx="356" cy="186" rx="24.2" ry="24.2" style="fill:#d4845a;fill-opacity:0.15"/>
+    <ellipse cx="356" cy="186" rx="11" ry="11" style="fill:#d4845a"/>
+    <!-- AI Spark (main) -->
+    <rect rx="3" ry="3" x="393" y="180" width="6" height="32" style="fill:#ffffff;fill-opacity:0.9"/>
+    <rect rx="3" ry="3" x="380" y="193" width="32" height="6" style="fill:#ffffff;fill-opacity:0.9"/>
+    <rect rx="0" ry="0" x="393.5" y="184" width="5" height="24" transform="matrix(0.7071,0.7071,-0.7071,0.7071,254.58,-222.61)" style="fill:#ffffff;fill-opacity:0.5"/>
+    <rect rx="0" ry="0" x="393.5" y="184" width="5" height="24" transform="matrix(0.7071,-0.7071,0.7071,0.7071,-22.61,337.42)" style="fill:#ffffff;fill-opacity:0.5"/>
+    <!-- AI Spark (small) -->
+    <rect rx="2" ry="2" x="204" y="486" width="4" height="20" style="fill:#ffffff;fill-opacity:0.5"/>
+    <rect rx="2" ry="2" x="196" y="494" width="20" height="4" style="fill:#ffffff;fill-opacity:0.5"/>
+  </g>
+</svg>

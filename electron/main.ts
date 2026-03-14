@@ -1,10 +1,56 @@
-import { type ChildProcess, fork } from "node:child_process";
+import { type ChildProcess, execSync, fork } from "node:child_process";
 import fs from "node:fs";
 import net from "node:net";
 import path from "node:path";
 import { app, BrowserWindow, dialog, shell } from "electron";
 
 const DEFAULT_PORT = 43199;
+
+/**
+ * When Electron launches as a .app on macOS (or from Start Menu on Windows),
+ * process.env.PATH is minimal and doesn't include user-installed tools like
+ * /opt/homebrew/bin (macOS) or npm global bin dirs.
+ * This function resolves the full user shell PATH.
+ */
+function getFullPath(): string {
+  // biome-ignore lint/style/noProcessEnv: need to read and fix PATH for packaged app
+  const currentPath = process.env.PATH ?? "";
+
+  if (process.platform === "win32") {
+    return currentPath;
+  }
+
+  // macOS/Linux: get PATH from user's login shell
+  try {
+    // biome-ignore lint/style/noProcessEnv: need to detect user shell
+    const userShell = process.env.SHELL ?? "/bin/zsh";
+    const shellPath = execSync(`${userShell} -ilc 'echo $PATH'`, {
+      encoding: "utf-8",
+      timeout: 5000,
+    }).trim();
+    if (shellPath) return shellPath;
+  } catch {
+    // fallback
+  }
+
+  // Append common paths that might be missing
+  const extraPaths = [
+    "/opt/homebrew/bin",
+    "/opt/homebrew/sbin",
+    "/usr/local/bin",
+    path.join(app.getPath("home"), ".local", "bin"),
+    path.join(app.getPath("home"), ".nvm", "versions", "node"),
+  ];
+
+  const pathSet = new Set(currentPath.split(":"));
+  for (const p of extraPaths) {
+    if (!pathSet.has(p)) {
+      pathSet.add(p);
+    }
+  }
+
+  return [...pathSet].join(":");
+}
 
 let mainWindow: BrowserWindow | null = null;
 let serverProcess: ChildProcess | null = null;
@@ -86,8 +132,12 @@ function startBackendServer(port: number): Promise<void> {
       ["--port", String(port), "--hostname", "127.0.0.1"],
       {
         stdio: ["pipe", "pipe", "pipe", "ipc"],
-        // biome-ignore lint/style/noProcessEnv: need to pass full env to server
-        env: { ...process.env, ELECTRON_RUN_AS_NODE: "1" },
+        env: {
+          // biome-ignore lint/style/noProcessEnv: need to pass full env to server
+          ...process.env,
+          ELECTRON_RUN_AS_NODE: "1",
+          PATH: getFullPath(),
+        },
       },
     );
 

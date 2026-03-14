@@ -42,7 +42,7 @@
     "lingui:extract": "lingui extract --clean && node ./scripts/lingui-sort.js",
     "lingui:compile": "lingui compile --typescript",
     "build:electron-server": "esbuild src/server/main.ts --format=esm --bundle --sourcemap --platform=node --external:@replit/ruspty --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\" --outfile=electron-dist/server.mjs && node scripts/copy-static.js",
-    "build:electron": "pnpm build:electron-server && esbuild electron/main.ts --format=cjs --bundle --platform=node --external:electron --external:electron-updater --outfile=electron-dist/main.cjs && esbuild electron/preload.ts --format=cjs --bundle --platform=node --external:electron --outfile=electron-dist/preload.cjs",
+    "build:electron": "pnpm build:electron-server && esbuild electron/main.ts --format=cjs --bundle --platform=node --external:electron --outfile=electron-dist/main.cjs && esbuild electron/preload.ts --format=cjs --bundle --platform=node --external:electron --outfile=electron-dist/preload.cjs",
     "electron:dev": "pnpm build:frontend && pnpm build:electron && electron electron-dist/main.cjs",
     "electron:pack": "pnpm build:frontend && pnpm build:electron && electron-builder --dir",
     "electron:dist": "pnpm build:frontend && pnpm build:electron && electron-builder",
@@ -156,10 +156,7 @@
       "electron-dist/**/*",
       "package.json",
       "!node_modules",
-      "node_modules/@replit/ruspty/**/*",
-      "node_modules/electron-updater/**/*",
-      "node_modules/builder-util-runtime/**/*",
-      "node_modules/lazy-val/**/*"
+      "node_modules/@replit/ruspty/**/*"
     ],
     "asarUnpack": [
       "node_modules/@replit/ruspty/**/*"
@@ -170,10 +167,7 @@
       "target": [
         "dmg",
         "zip"
-      ],
-      "hardenedRuntime": true,
-      "entitlements": "electron/entitlements.mac.plist",
-      "entitlementsInherit": "electron/entitlements.mac.plist"
+      ]
     },
     "win": {
       "icon": "icon/icon.ico",

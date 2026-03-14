@@ -1,10 +1,87 @@
-import { type ChildProcess, fork } from "node:child_process";
+import { type ChildProcess, execSync, fork } from "node:child_process";
 import fs from "node:fs";
 import net from "node:net";
 import path from "node:path";
 import { app, BrowserWindow, dialog, shell } from "electron";
 
 const DEFAULT_PORT = 43199;
+
+/**
+ * When Electron launches as a .app on macOS (or from Start Menu on Windows),
+ * process.env.PATH is minimal and doesn't include user-installed tools like
+ * /opt/homebrew/bin (macOS) or npm global bin dirs.
+ * This function resolves the full user shell PATH.
+ */
+function getFullPath(): string {
+  // biome-ignore lint/style/noProcessEnv: need to read and fix PATH for packaged app
+  const currentPath = process.env.PATH ?? "";
+
+  const sep = process.platform === "win32" ? ";" : ":";
+
+  if (process.platform === "win32") {
+    // Windows: read full user PATH from registry, since GUI apps may have stale PATH
+    try {
+      const regOutput = execSync('reg query "HKCU\\Environment" /v Path', {
+        encoding: "utf-8",
+        timeout: 5000,
+      });
+      const match = regOutput.match(/Path\s+REG_(?:EXPAND_)?SZ\s+(.+)/i);
+      if (match) {
+        const registryPath = match[1].trim();
+        const merged = new Set(currentPath.split(sep));
+        for (const p of registryPath.split(sep)) {
+          if (p) merged.add(p);
+        }
+        return [...merged].join(sep);
+      }
+    } catch {
+      // fallback
+    }
+
+    // Append common Windows paths for npm/node tools
+    const home = app.getPath("home");
+    const appData =
+      // biome-ignore lint/style/noProcessEnv: need APPDATA for npm global path
+      process.env.APPDATA ?? path.join(home, "AppData", "Roaming");
+    const extraPaths = [
+      path.join(appData, "npm"),
+      path.join(home, ".local", "bin"),
+    ];
+    const pathSet = new Set(currentPath.split(sep));
+    for (const p of extraPaths) {
+      pathSet.add(p);
+    }
+    return [...pathSet].join(sep);
+  }
+
+  // macOS/Linux: get PATH from user's login shell
+  try {
+    // biome-ignore lint/style/noProcessEnv: need to detect user shell
+    const userShell = process.env.SHELL ?? "/bin/zsh";
+    const shellPath = execSync(`${userShell} -ilc 'echo $PATH'`, {
+      encoding: "utf-8",
+      timeout: 5000,
+    }).trim();
+    if (shellPath) return shellPath;
+  } catch {
+    // fallback
+  }
+
+  // Append common paths that might be missing
+  const extraPaths = [
+    "/opt/homebrew/bin",
+    "/opt/homebrew/sbin",
+    "/usr/local/bin",
+    path.join(app.getPath("home"), ".local", "bin"),
+  ];
+
+  const pathSet = new Set(currentPath.split(sep));
+  for (const p of extraPaths) {
+    pathSet.add(p);
+  }
+
+  return [...pathSet].join(sep);
+}
 
 let mainWindow: BrowserWindow | null = null;
 let serverProcess: ChildProcess | null = null;
@@ -86,8 +163,12 @@ function startBackendServer(port: number): Promise<void> {
       ["--port", String(port), "--hostname", "127.0.0.1"],
       {
         stdio: ["pipe", "pipe", "pipe", "ipc"],
-        // biome-ignore lint/style/noProcessEnv: need to pass full env to server
-        env: { ...process.env, ELECTRON_RUN_AS_NODE: "1" },
+        env: {
+          // biome-ignore lint/style/noProcessEnv: need to pass full env to server
+          ...process.env,
+          ELECTRON_RUN_AS_NODE: "1",
+          PATH: getFullPath(),
+        },
       },
     );
 
